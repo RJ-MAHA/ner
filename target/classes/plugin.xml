@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+
+   id="StanfordNerStep"
+   iconfile="lirenjun.svg"
+   name="StanfordNerStep.name"
+   description="StanfordNerStep.description"
+   tooltip="StanfordNerStep.tooltip"
+   categoryDescription = "李仁君新加组件"
+   classname="org.pentaho.di.trans.steps.StanfordNer.StanfordNerPluginMeta">
+
+		<libraries>
+    		<library name="StanfordNerPlugin.jar"/>
+		</libraries>
+
+	<localized_category>
+		<category locale="en_US">Input</category>
+		<category locale="zh_CN">李仁君新加组件</category>
+	</localized_category>
+</plugin>
