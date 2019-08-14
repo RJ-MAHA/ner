@@ -22,10 +22,11 @@
 
 package org.pentaho.di.trans.steps.StanfordNer;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import java.util.HashMap;
 
-import org.json.simple.JSONArray;
+import java.util.*;
+
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
@@ -45,9 +46,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.print.DocFlavor;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
 
 
 
@@ -86,46 +84,46 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
     data.ServerHost = environmentSubstitute( meta.getServerHost() );
     data.ServerPort = environmentSubstitute( meta.getServerPort() );
     String Content = (String) r[data.inputRowMeta.indexOfValue(meta.getContent())];
+    String ajbh = (String) r[data.inputRowMeta.indexOfValue("ajbh")];
+    if(ajbh.equals("A3100916100002017060017")){
+      String a = "";
+    }
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json;charset=UTF-8");
     HttpEntity<MultiValueMap<String, String>> Entity = new HttpEntity(Content, headers);
-    String SERV_NER_URL = "http://"+data.ServerHost+":"+data.ServerPort+"?properties=%7B%22annotators%22%3A%20%22tokenize%2Cssplit%2Cner%2Cregexner%22%2C%20%22date%22%3A%20%222019-08-12T17%3A44%3A24%22%7D&pipelineLanguage=zh";
+    String SERV_NER_URL = "http://"+data.ServerHost+":"+data.ServerPort+"?properties=%7B%22annotators%22%3A%20%22tokenize%2Cssplit%2Cner%22%2C%20%22date%22%3A%20%222019-08-12T17%3A44%3A24%22%7D&pipelineLanguage=zh";
 
     RestTemplate restTemplate = new RestTemplate();
 
     ResponseEntity<JSONObject> response = restTemplate
             .postForEntity(SERV_NER_URL, Entity, JSONObject.class);
 
-//    Object extraValue = meta.getValue().getValueData();
-
-//    Object[] outputRow = RowDataUtil.addValueData( r, data.outputRowMeta.size() - 1, extraValue );
-
-//    putRow( data.outputRowMeta, outputRow );     // copy row to possible alternate rowset(s).
     JSONObject body = response.getBody();
+    HashSet<String> persons =new HashSet<>();
+    HashSet<String> ORGANIZATION =new HashSet<>();
+    HashSet<String> LOCATION_DEFINE =new HashSet<>();
     ArrayList<HashMap> sentences = (ArrayList<HashMap>) body.get("sentences");
-    ArrayList<HashMap> hashMap = (ArrayList) sentences.get(0).get("entitymentions");
-    ArrayList<String> persons =new ArrayList<>();
-    ArrayList<String> ORGANIZATION =new ArrayList<>();
-    ArrayList<String> LOCATION_DEFINE =new ArrayList<>();
-//    java.util.HashMap entitymentions = (java.util.HashMap) ((java.util.HashMap)((ArrayList)( response.getBody()).get("sentences")).get(0)).get("entitymentions");
-    for(HashMap hp:hashMap){
-      if(hp.get("ner").toString().equals("PERSON")){
-        persons.add(hp.get("text").toString());
+    for(int i = 0;i<sentences.size();i++){
+      ArrayList<HashMap> hashMap = (ArrayList) sentences.get(i).get("entitymentions");
+      for(HashMap hp:hashMap){
+        if(hp.get("ner").toString().equals("PERSON")){
+          persons.add(hp.get("text").toString());
+        }
+        if(hp.get("ner").toString().equals("ORGANIZATION")){
+          ORGANIZATION.add(hp.get("text").toString());
+        }
       }
-      if(hp.get("ner").toString().equals("ORGANIZATION")){
-        ORGANIZATION.add(hp.get("text").toString());
-      }
-//      if(hp.get("ner").toString().equals("LOCATION_DEFINE")){
-//        LOCATION_DEFINE.add(hp.get("text").toString());
-//      }
     }
 
-    String SERV_LOCAL_URL = "http://"+data.ServerHost+":"+data.ServerPort+"/tokensregex?pattern=(?$local[{ner:/GPE|LOCATION|FACILITY|CITY|STATE_OR_PROVINCE/}]+[{ner:/DATE/}]?[{ner:/NUMBER|MISC|DATE|ORDINAL/}]?[{word:/线|号|室|弄|栋|橦|房间|楼|、/}]?[{tag:/NR|AD|M|JJ|NN/}]?[{tag:/NR|AD|M|JJ|NN/}]?[{tag:/NR|AD|M|JJ|NN/}]?[{ner:/NUMBER|MISC|DATE|ORDINAL/}]?[{word:/号 线|号|室|弄|栋|橦|房间|楼|、/}]?[{ner:/NUMBER|MISC|DATE|ORDINAL/}]?[{word:/号 线|号|室|弄|栋|橦|房间|楼|、/}]?[{ner:/NUMBER|MISC|DATE|ORDINAL/}]?[{word:/号 线|号|室|弄|栋|橦|房间|楼|、/}]?)&properties=%7B%22annotators%22%3A%20%22tokenize%2Cssplit%2Cner%22%2C%20%22date%22%3A%20%222019-08-13T23%3A22%3A20%22%7D&pipelineLanguage=zh";
+
+    String SERV_LOCAL_URL = "http://"+data.ServerHost+":"+data.ServerPort+"/tokensregex?pattern=(%3F%24local%5B%7Bner%3A%2FGPE%7CLOCATION%7CFACILITY%7CCITY%7CSTATE_OR_PROVINCE%2F%7D%5D%2B%5B%7Bner%3A%2FDATE%2F%7D%5D%3F%5B%7Bner%3A%2FNUMBER%7CMISC%7CDATE%7CORDINAL%2F%7D%5D%3F%5B%7Bword%3A%2F%E7%BA%BF%7C%E5%8F%B7%7C%E5%AE%A4%7C%E5%BC%84%7C%E6%A0%8B%7C%E6%A9%A6%7C%E6%88%BF%E9%97%B4%7C%E6%A5%BC%7C%E3%80%81%2F%7D%5D%3F%5B%7Btag%3A%2FNR%7CAD%7CM%7CJJ%7CNN%2F%7D%5D%3F%5B%7Btag%3A%2FNR%7CAD%7CM%7CJJ%7CNN%2F%7D%5D%3F%5B%7Btag%3A%2FNR%7CAD%7CM%7CJJ%7CNN%2F%7D%5D%3F%5B%7Bner%3A%2FNUMBER%7CMISC%7CDATE%7CORDINAL%2F%7D%5D%3F%5B%7Bword%3A%2F%E5%8F%B7%20%E7%BA%BF%7C%E5%8F%B7%7C%E5%AE%A4%7C%E5%BC%84%7C%E6%A0%8B%7C%E6%A9%A6%7C%E6%88%BF%E9%97%B4%7C%E6%A5%BC%7C%E3%80%81%2F%7D%5D%3F%5B%7Bner%3A%2FNUMBER%7CMISC%7CDATE%7CORDINAL%2F%7D%5D%3F%5B%7Bword%3A%2F%E5%8F%B7%20%E7%BA%BF%7C%E5%8F%B7%7C%E5%AE%A4%7C%E5%BC%84%7C%E6%A0%8B%7C%E6%A9%A6%7C%E6%88%BF%E9%97%B4%7C%E6%A5%BC%7C%E3%80%81%2F%7D%5D%3F%5B%7Bner%3A%2FNUMBER%7CMISC%7CDATE%7CORDINAL%2F%7D%5D%3F%5B%7Bword%3A%2F%E5%8F%B7%20%E7%BA%BF%7C%E5%8F%B7%7C%E5%AE%A4%7C%E5%BC%84%7C%E6%A0%8B%7C%E6%A9%A6%7C%E6%88%BF%E9%97%B4%7C%E6%A5%BC%7C%E3%80%81%2F%7D%5D%3F)&properties=%7B%22annotators%22%3A%20%22tokenize%2Cssplit%2Cner%22%2C%20%22date%22%3A%20%222019-08-14T13%3A02%3A11%22%7D&pipelineLanguage=zh";
     ResponseEntity<String> response_local = restTemplate.postForEntity(SERV_LOCAL_URL, Entity, String.class);
     JSONObject local_json = (JSONObject) JSONObject.parse(response_local.getBody());
-    ArrayList<HashMap> tokens = (ArrayList) sentences.get(0).get("tokens");
-    for(Object lj :(com.alibaba.fastjson.JSONArray)local_json.get("sentences")){
-      JSONObject lj1 = (JSONObject) lj;
+    JSONArray local_json_array  = (JSONArray)local_json.get("sentences");
+    int local_json_array_length =local_json_array.size();
+    for(int i=0;i<local_json_array_length;i++){
+      ArrayList<HashMap> tokens = (ArrayList) sentences.get(i).get("tokens");
+      JSONObject lj1 = (JSONObject) local_json_array.get(i);
       if(lj1.size()>1){
         Set<String> iterator = lj1.keySet();
         for(String js : iterator){
@@ -135,8 +133,13 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
             Integer end = Integer.valueOf(value.get("end").toString());
             String local_s = "";
             for(; begin<end; begin++){
-              String local = tokens.get(begin).get("word").toString();
+              try {
+                String local = tokens.get(begin).get("word").toString();
                 local_s += local;
+              }catch (Exception e){
+                logBasic("忽略错误");
+              }
+
             }
             if(local_s.length() > 2) {
               LOCATION_DEFINE.add(local_s);
