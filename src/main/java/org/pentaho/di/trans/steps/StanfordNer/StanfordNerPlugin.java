@@ -107,7 +107,9 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
       ArrayList<HashMap> hashMap = (ArrayList) sentences.get(i).get("entitymentions");
       for(HashMap hp:hashMap){
         if(hp.get("ner").toString().equals("PERSON")){
-          persons.add(hp.get("text").toString());
+          if(hp.get("text").toString().length()>1) {
+            persons.add(hp.get("text").toString());
+          }
         }
         if(hp.get("ner").toString().equals("ORGANIZATION")){
           ORGANIZATION.add(hp.get("text").toString());
