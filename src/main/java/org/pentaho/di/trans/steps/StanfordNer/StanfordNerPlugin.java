@@ -84,10 +84,10 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
     data.ServerHost = environmentSubstitute( meta.getServerHost() );
     data.ServerPort = environmentSubstitute( meta.getServerPort() );
     String Content = (String) r[data.inputRowMeta.indexOfValue(meta.getContent())];
-    String ajbh = (String) r[data.inputRowMeta.indexOfValue("ajbh")];
-    if(ajbh.equals("A3100916100002017060017")){
-      String a = "";
-    }
+//    String ajbh = (String) r[data.inputRowMeta.indexOfValue("ajbh")];
+//    if(ajbh.equals("A3100916100002017060017")){
+//      String a = "";
+//    }
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json;charset=UTF-8");
     HttpEntity<MultiValueMap<String, String>> Entity = new HttpEntity(Content, headers);
@@ -146,7 +146,7 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
             if(local_s.length() > 2) {
               LOCATION_DEFINE.add(local_s);
             }
-            String a = "1";
+//            String a = "1";
           }
         }
       }
@@ -156,9 +156,9 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
     RowDataUtil.addValueData( r, 4, LOCATION_DEFINE.toString() );
     Object[] outputRow =r;
     putRow(data.outputRowMeta,outputRow);
-    if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( "Linenr " + getLinesRead() );  // Some basic logging every 5000 rows.
-    }
+//    if ( checkFeedback( getLinesRead() ) ) {
+//      logBasic( "Linenr " + getLinesRead() );  // Some basic logging every 5000 rows.
+//    }
 
     return true;
   }
