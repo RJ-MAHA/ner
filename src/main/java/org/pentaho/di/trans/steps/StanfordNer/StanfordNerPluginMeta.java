@@ -47,12 +47,14 @@ import java.util.*;
  *
  */
 
-@Step( id = "StanfordNerStep",
-      image = "lirenjun.svg",
-      i18nPackageName = "org.pentaho.di.trans.steps.StanfordNer",
-      name = "StanfordNerStep.name",
-      description = "StanfordNerStep.description",
-      categoryDescription = "StanfordNerStep.categoryDescription" )
+@Step(
+        id = "StanfordNerStep",
+        image = "lirenjun.svg",
+        i18nPackageName = "org.pentaho.di.trans.steps.StanfordNer",
+        name = "StanfordNerStep.name",
+        description = "StanfordNerStep.description",
+        categoryDescription = "StanfordNerStep.categoryDescription"
+)
 public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = StanfordNerPluginMeta.class;
 
@@ -62,16 +64,25 @@ public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInter
   private String organization;
   private String localtion;
   private String Content;
+  private String URLs;
 
 
-  public void allocate( int nrkeys ) {
+  public String getURLs() {
+    return URLs;
+  }
+
+  public void setURLs(String URLs) {
+    this.URLs = URLs;
+  }
+
+  public void allocate(int nrkeys ) {
     serverHost = new String();
     serverPort = new String();
     peopleName = new String();
     organization = new String();
     localtion = new String();
     Content = new String();
-
+    URLs = new String();
   }
 
   public String getContent() {
@@ -90,6 +101,7 @@ public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInter
     organization = null;
     localtion = null;
     Content = null;
+    URLs = null;
     int nrkeys = 0;
     allocate( nrkeys );
   }
@@ -104,6 +116,7 @@ public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInter
     retval.organization = organization;
     retval.localtion = localtion;
     retval.Content = Content;
+    retval.URLs =URLs;
     return retval;
   }
 
@@ -118,6 +131,7 @@ public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInter
       organization = Const.NVL( XMLHandler.getTagValue( stepnode, "organization" ), "" );
       localtion = Const.NVL( XMLHandler.getTagValue( stepnode, "localtion" ), "" );
       Content = Const.NVL( XMLHandler.getTagValue( stepnode, "Content" ), "" );
+      URLs = Const.NVL( XMLHandler.getTagValue( stepnode, "URLs" ), "" );
     } catch ( Exception e ) {
       throw new KettleXMLException( BaseMessages.getString(
               PKG, "readData 异常" ), e );
@@ -148,6 +162,13 @@ public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInter
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
+    if ( URLs != null ) {
+      ValueMetaInterface v =
+              new ValueMetaString( space.environmentSubstitute( URLs ) );
+      v.setLength( 100, -1 );
+      v.setOrigin( name );
+      inputRowMeta.addValueMeta( v );
+    }
 //    if ( serverHost != null ) {
 //      ValueMetaInterface v =
 //              new ValueMetaString( space.environmentSubstitute( serverHost ) );
@@ -174,6 +195,7 @@ public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInter
     retval.append( "    " ).append( XMLHandler.addTagValue( "organization", organization ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "localtion", localtion ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "Content", Content ) );
+    retval.append( "    " ).append( XMLHandler.addTagValue( "URLs", URLs ) );
     return retval.toString();
   }
 
@@ -189,6 +211,7 @@ public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInter
       organization = rep.getStepAttributeString( id_step, "organization" );
       localtion = rep.getStepAttributeString( id_step, "localtion" );
       Content = rep.getStepAttributeString( id_step, "Content" );
+      URLs = rep.getStepAttributeString( id_step, "URLs" );
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
               PKG, "readRep 异常" ), e );
@@ -207,6 +230,7 @@ public class StanfordNerPluginMeta extends BaseStepMeta implements StepMetaInter
       rep.saveStepAttribute( id_transformation, id_step,  "organization", organization );
       rep.saveStepAttribute( id_transformation, id_step,  "localtion", localtion );
       rep.saveStepAttribute( id_transformation, id_step,  "Content", Content );
+      rep.saveStepAttribute( id_transformation, id_step,  "URLs", URLs );
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
               PKG, "saveRep 异常" )

@@ -45,6 +45,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+
 import javax.print.DocFlavor;
 
 
@@ -102,6 +103,7 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
     HashSet<String> persons =new HashSet<>();
     HashSet<String> ORGANIZATION =new HashSet<>();
     HashSet<String> LOCATION_DEFINE =new HashSet<>();
+    HashSet<String> URL =new HashSet<>();
     ArrayList<HashMap> sentences = (ArrayList<HashMap>) body.get("sentences");
     for(int i = 0;i<sentences.size();i++){
       ArrayList<HashMap> hashMap = (ArrayList) sentences.get(i).get("entitymentions");
@@ -113,6 +115,12 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
         }
         if(hp.get("ner").toString().equals("ORGANIZATION")){
           ORGANIZATION.add(hp.get("text").toString());
+        }
+      }
+      ArrayList<HashMap> hashMap1 = (ArrayList) sentences.get(i).get("tokens");
+      for(HashMap hp:hashMap1){
+        if(hp.get("pos").toString().equals("URL")){
+          URL.add(hp.get("word").toString());
         }
       }
     }
@@ -146,20 +154,17 @@ public class StanfordNerPlugin extends BaseStep implements StepInterface {
             if(local_s.length() > 2) {
               LOCATION_DEFINE.add(local_s);
             }
-//            String a = "1";
+
           }
         }
       }
     }
-    RowDataUtil.addValueData( r, 2, persons.toString() );
-    RowDataUtil.addValueData( r, 3, ORGANIZATION.toString() );
-    RowDataUtil.addValueData( r, 4, LOCATION_DEFINE.toString() );
+    RowDataUtil.addValueData( r,  data.inputRowMeta.size(), persons.toString() );
+    RowDataUtil.addValueData( r, data.inputRowMeta.size()+1, ORGANIZATION.toString() );
+    RowDataUtil.addValueData( r, data.inputRowMeta.size()+2, LOCATION_DEFINE.toString() );
+    RowDataUtil.addValueData( r, data.inputRowMeta.size()+3, URL.toString() );
     Object[] outputRow =r;
     putRow(data.outputRowMeta,outputRow);
-//    if ( checkFeedback( getLinesRead() ) ) {
-//      logBasic( "Linenr " + getLinesRead() );  // Some basic logging every 5000 rows.
-//    }
-
     return true;
   }
 

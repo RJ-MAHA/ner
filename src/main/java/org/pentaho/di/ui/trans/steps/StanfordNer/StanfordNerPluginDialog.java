@@ -39,7 +39,6 @@ import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.StanfordNer.StanfordNerPluginMeta;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.core.widget.ComboVar;
 import org.pentaho.di.ui.core.widget.TextVar;
@@ -68,9 +67,11 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
     private Label wlLocaltion;
     private TextVar wLocaltion;
 
-
     private Label wlContentField;
     private ComboVar wContentField;
+
+    private Label wlUrls;
+    private TextVar wUrls;
 
     private StanfordNerPluginMeta input;
 
@@ -132,7 +133,7 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
         Control lastControl = wStepname;
 
         wlServerHost = new Label( shell, SWT.RIGHT );
-        wlServerHost.setText( "URL："  );
+        wlServerHost.setText( "ServerHost："  );
         props.setLook( wlServerHost );
         FormData fdlServerHost = new FormData();
         fdlServerHost.left = new FormAttachment( 0, 0 );
@@ -150,7 +151,7 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
         lastControl = wServerHost;
 
         wlServerPort = new Label( shell, SWT.RIGHT );
-        wlServerPort.setText( "Port："  );
+        wlServerPort.setText( "ServerPort："  );
         props.setLook( wlServerPort );
         FormData fdlServerPort = new FormData();
         fdlServerPort.left = new FormAttachment( 0, 0 );
@@ -166,7 +167,6 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
         fdServerPort.right = new FormAttachment( 100, 0 );
         wServerPort.setLayoutData( fdServerPort );
         lastControl = wServerPort;
-
 
         wlNname = new Label( shell, SWT.RIGHT );
         wlNname.setText("人名："  );
@@ -204,8 +204,6 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
         wOrganization.setLayoutData( fdOrganization );
         lastControl = wOrganization;
 
-
-
         wlLocaltion = new Label( shell, SWT.RIGHT );
         wlLocaltion.setText( "地址：");
         props.setLook( wlLocaltion );
@@ -224,6 +222,23 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
         wLocaltion.setLayoutData( fdLocaltion );
         lastControl = wLocaltion;
 
+        wlUrls = new Label( shell, SWT.RIGHT );
+        wlUrls.setText( "URL：");
+        props.setLook( wlUrls );
+        FormData fdlUrls = new FormData();
+        fdlUrls.left = new FormAttachment( 0, 0 );
+        fdlUrls.right = new FormAttachment( middle, -margin );
+        fdlUrls.top = new FormAttachment( lastControl, margin );
+        wlUrls.setLayoutData( fdlUrls );
+        wUrls = new TextVar( transMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+        props.setLook( wUrls );
+        wUrls.addModifyListener( lsMod );
+        FormData fdUrls = new FormData();
+        fdUrls.left = new FormAttachment( middle, 0 );
+        fdUrls.top = new FormAttachment( lastControl, margin );
+        fdUrls.right = new FormAttachment( 100, 0 );
+        wUrls.setLayoutData( fdUrls );
+        lastControl = wUrls;
 
         wlContentField = new Label( shell, SWT.RIGHT );
         wlContentField.setText( "选择识别字段：");
@@ -275,8 +290,6 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
             }
         };
         new Thread( runnable ).start();
-
-
         wOK = new Button( shell, SWT.PUSH );
         wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
         wCancel = new Button( shell, SWT.PUSH );
@@ -311,7 +324,6 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
                 cancel();
             }
         } );
-
 
         // Set the shell size, based upon previous time...
         setSize();
@@ -369,6 +381,7 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
         wOrganization.setText( Const.NVL( input.getOrganization(), "" ) );
         wLocaltion.setText( Const.NVL( input.getLocaltion(), "" ) );
         wContentField.setText( Const.NVL( input.getContent(), "" ) );
+        wUrls.setText( Const.NVL( input.getURLs(), "" ) );
 
         wStepname.selectAll();
         wStepname.setFocus();
@@ -405,5 +418,6 @@ public class StanfordNerPluginDialog extends BaseStepDialog implements StepDialo
         meta.setOrganization(wOrganization.getText());
         meta.setLocaltion(wLocaltion.getText());
         meta.setContent(wContentField.getText());
+        meta.setURLs(wUrls.getText());
     }
 }
